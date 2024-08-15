@@ -1,4 +1,4 @@
-package org.radiogaga.app.domain
+package org.radiogaga.app.core.domain.model
 
 data class City(
     val title : String,

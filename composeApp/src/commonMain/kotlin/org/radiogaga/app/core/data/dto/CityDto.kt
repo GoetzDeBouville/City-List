@@ -1,4 +1,4 @@
-package org.radiogaga.app.data.dto
+package org.radiogaga.app.core.data.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

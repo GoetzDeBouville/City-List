@@ -1,10 +1,10 @@
-package org.radiogaga.app.data
+package org.radiogaga.app.core.data
 
 import city_list.composeapp.generated.resources.Res
 import city_list.composeapp.generated.resources.country
 import city_list.composeapp.generated.resources.population
-import org.radiogaga.app.data.dto.CityDto
-import org.radiogaga.app.domain.City
+import org.radiogaga.app.core.data.dto.CityDto
+import org.radiogaga.app.core.domain.model.City
 
 fun CityDto.toDomain(): City {
     val subtTitle = Res.string.country.toString() +
