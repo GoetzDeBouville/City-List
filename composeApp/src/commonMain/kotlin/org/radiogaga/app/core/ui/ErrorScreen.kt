@@ -36,7 +36,9 @@ fun ErrorScreen(errorType: ErrorScreenState) {
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = description,
-                style = MaterialTheme.typography.displayMedium
+                style = MaterialTheme.typography.displayMedium.copy(
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             )
         }
     }

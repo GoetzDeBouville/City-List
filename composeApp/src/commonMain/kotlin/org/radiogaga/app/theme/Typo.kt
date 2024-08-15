@@ -12,5 +12,17 @@ val Typography = Typography(
         fontSize = 19.sp,
         letterSpacing = 0.sp,
         color = Color.Unspecified
-    )
+    ),
+    titleMedium = TextStyle(
+        fontWeight = FontWeight.Light,
+        fontSize = 16.sp,
+        letterSpacing = 0.sp,
+        color = Color.Unspecified
+    ),
+    titleSmall = TextStyle(
+        fontWeight = FontWeight.Thin,
+        fontSize = 12.sp,
+        letterSpacing = 0.sp,
+        color = Color.Unspecified
+    ),
 )
