@@ -8,4 +8,9 @@
 
     <string name="population"> население: </string>
     <string name="country">Страна: </string>
+
+    <string name="something_went_wrong">Что-то пошло не так...\nданные не загрузились</string>
+    <string name="nothing_found">По вашему запросу\nничего не найдено</string>
+    <string name="no_internet_connection">Проверьте подключение к интернету</string>
+
 </resources>
