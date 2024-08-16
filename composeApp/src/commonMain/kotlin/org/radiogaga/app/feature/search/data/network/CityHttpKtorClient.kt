@@ -6,6 +6,8 @@ import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.http.path
 import org.radiogaga.app.core.data.network.HttpKtorNetworkClient
 import org.radiogaga.app.core.data.network.NetworkConstants
@@ -18,11 +20,13 @@ class CityHttpKtorClient(private val httpClient: HttpClient) :
                 httpClient.get {
                     url {
                         path(request.path)
-                        parameter("format", "json")
+                        parameter("name", request.query)
+                        parameter("limit", request.limit.toString())
+                        contentType(ContentType.Application.Json)
                     }
 
                     headers {
-                        NetworkConstants.TOKEN
+                        append(AUTH_KEY, NetworkConstants.TOKEN)
                     }
                 }
             }
@@ -36,5 +40,9 @@ class CityHttpKtorClient(private val httpClient: HttpClient) :
         return when(requestType) {
             is CityRequest.CityeList -> CityResponse.CityList(httpResponse.body())
         }
+    }
+
+    companion object {
+        const val AUTH_KEY = "X-Api-Key"
     }
 }

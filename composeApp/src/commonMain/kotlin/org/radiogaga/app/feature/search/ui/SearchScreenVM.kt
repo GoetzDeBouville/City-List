@@ -5,8 +5,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.radiogaga.app.core.domain.model.City
+import org.radiogaga.app.feature.search.domain.usecase.GetCitiesUseCase
 
-class SearchScreenVM : ViewModel() {
+class SearchScreenVM(private val getCitiesUseCase: GetCitiesUseCase) : ViewModel() {
     private val _state = MutableStateFlow<SearchScreenState>(SearchScreenState.Data(emptyList()))
     val state = _state.asStateFlow()
 

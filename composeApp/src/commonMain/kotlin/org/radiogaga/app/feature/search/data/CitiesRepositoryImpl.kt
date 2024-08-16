@@ -16,8 +16,8 @@ class CitiesRepositoryImpl(
     private val httpNetworkClient: HttpNetworkClient<CityRequest, CityResponse>,
 ) : CitiesRepository {
 
-    override fun getCityList(): Flow<Result<List<City>, ErrorType>> = flow {
-        val response = httpNetworkClient.getResponse(CityRequest.CityeList)
+    override fun getCityList(query: String): Flow<Result<List<City>, ErrorType>> = flow {
+        val response = httpNetworkClient.getResponse(CityRequest.CityeList(query = query))
         when (val body = response.body) {
             is CityResponse.CityList -> {
                 emit(Result.Success(body.value.map { it.toDomain() }))
