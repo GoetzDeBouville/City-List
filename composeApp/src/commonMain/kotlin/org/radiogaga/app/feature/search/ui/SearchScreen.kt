@@ -36,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +52,7 @@ import city_list.composeapp.generated.resources.ic_dark_mode
 import city_list.composeapp.generated.resources.ic_light_mode
 import city_list.composeapp.generated.resources.input_string
 import city_list.composeapp.generated.resources.theme
+import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -60,6 +62,7 @@ import org.radiogaga.app.core.imgresources.SearchIc
 import org.radiogaga.app.core.ui.ErrorScreen
 import org.radiogaga.app.theme.AppTheme
 import org.radiogaga.app.theme.LocalThemeIsDark
+import org.radiogaga.app.util.debounceFun
 
 @Composable
 fun SearchScreen(
@@ -75,12 +78,24 @@ fun SearchScreen(
 private fun Content(
     navController: NavController,
     state: SearchScreenState,
-    accept: (SearchScreenEvent) -> Unit
+    accept: (SearchScreenEvent) -> Unit,
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
+    val debounceAccept = debounceFun<String>(
+        delayMillis = 2_000L,
+        coroutineScope = coroutineScope,
+        useLastParam = true
+    ) { newText ->
+        if (newText.isNotBlank()) {
+            accept(SearchScreenEvent.SearchTextChanged(newText))
+        }
+    }
+
     Scaffold(
         modifier = Modifier
             .background(color = MaterialTheme.colorScheme.background)
             .fillMaxSize()
+            .padding(top = 16.dp)
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
         var text by remember { mutableStateOf("") }
@@ -90,7 +105,7 @@ private fun Content(
                 accept,
                 onTextChange = { inputText ->
                     text = inputText
-                    accept(SearchScreenEvent.SearchTextChanged(text))
+                    debounceAccept(text)
                 }
             )
 
@@ -221,6 +236,7 @@ private fun CityList(
     navController: NavController,
     cities: List<City>
 ) {
+    println("SearchScreen cities -> ${cities.map { it.toString() }}")
     LazyColumn {
         items(cities) { city ->
             CityItem(navController, city)
@@ -283,24 +299,3 @@ private fun ShowContentPreview() {
         )
     }
 }
-
-private val demolist = listOf(
-    City(
-        title = "Los-Angeles",
-        subTitle = "Country: US population: 2kk",
-        latitude = 4.5f,
-        longitude = 6.7f
-    ),
-    City(
-        title = "London",
-        subTitle = "Country: UK population: 18kk",
-        latitude = 4.5f,
-        longitude = 6.7f
-    ),
-    City(
-        title = "Tokio",
-        subTitle = "Country: JP population: 22kk",
-        latitude = 4.5f,
-        longitude = 6.7f
-    ),
-)
