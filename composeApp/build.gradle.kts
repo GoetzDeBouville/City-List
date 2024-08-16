@@ -50,8 +50,10 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.ktor.core)
-            implementation(libs.kotlinx.serialization.json)
+//            implementation(libs.ktor.core)
+//            implementation(libs.kotlinx.serialization.json)
+
+            implementation(libs.bundles.ktor)
 
             api(libs.koin.core)
             implementation(libs.koin.compose)
