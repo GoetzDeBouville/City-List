@@ -54,7 +54,6 @@ import city_list.composeapp.generated.resources.theme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.koin.compose.viewmodel.koinViewModel
 import org.radiogaga.app.core.domain.model.City
 import org.radiogaga.app.core.imgresources.CrossIc
 import org.radiogaga.app.core.imgresources.SearchIc
@@ -65,7 +64,7 @@ import org.radiogaga.app.theme.LocalThemeIsDark
 @Composable
 fun SearchScreen(
     navController: NavController,
-    viewModel: SearchScreenVM = koinViewModel()
+    viewModel: SearchScreenVM
 ) {
     val state by viewModel.state.collectAsState()
 

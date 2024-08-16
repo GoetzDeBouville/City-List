@@ -1,8 +1,7 @@
-package org.radiogaga.app.core.data.network
+package org.radiogaga.app.core.di
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -12,11 +11,11 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.observer.ResponseObserver
 import io.ktor.client.request.accept
-import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import org.radiogaga.app.core.data.network.NetworkConstants
 
 fun createHttpClient(engine: HttpClientEngine): HttpClient {
     return HttpClient(engine) {
@@ -43,7 +42,6 @@ fun createHttpClient(engine: HttpClientEngine): HttpClient {
             }
         }
 
-
         install(ContentNegotiation) {
             json(
                 json = Json {
@@ -54,16 +52,11 @@ fun createHttpClient(engine: HttpClientEngine): HttpClient {
             )
         }
 
-//        install(DefaultRequest) {
-//            header("X-Api-Key", NetworkConstants.TOKEN)
-//        }
-
         install(ResponseObserver) {
             onResponse { response ->
                 println("HTTP status: ${response.status.value}")
             }
         }
-
 
         defaultRequest {
             url(NetworkConstants.BASE_URL)
