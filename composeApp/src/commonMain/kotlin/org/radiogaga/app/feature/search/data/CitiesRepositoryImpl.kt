@@ -17,7 +17,8 @@ class CitiesRepositoryImpl(
 ) : CitiesRepository {
 
     override fun getCityList(query: String): Flow<Result<List<City>, ErrorType>> = flow {
-        val response = httpNetworkClient.getResponse(CityRequest.CityeList(query = query))
+        val response = httpNetworkClient.getResponse(CityRequest.CityList(query = query))
+        println("$TAG response  ->  ${response.body}")
         when (val body = response.body) {
             is CityResponse.CityList -> {
                 emit(Result.Success(body.value.map { it.toDomain() }))
@@ -27,5 +28,9 @@ class CitiesRepositoryImpl(
                 emit(Result.Error(response.resultCode.mapToErrorType()))
             }
         }
+    }
+
+    private companion object {
+        val TAG = CitiesRepositoryImpl::class.simpleName
     }
 }

@@ -16,7 +16,7 @@ class CityHttpKtorClient(private val httpClient: HttpClient) :
     HttpKtorNetworkClient<CityRequest, CityResponse>() {
     override suspend fun sendResponseByType(request: CityRequest): HttpResponse {
         return when (request) {
-            is CityRequest.CityeList -> {
+            is CityRequest.CityList -> {
                 httpClient.get {
                     url {
                         path(request.path)
@@ -37,12 +37,13 @@ class CityHttpKtorClient(private val httpClient: HttpClient) :
         requestType: CityRequest,
         httpResponse: HttpResponse
     ): CityResponse {
-        return when(requestType) {
-            is CityRequest.CityeList -> CityResponse.CityList(httpResponse.body())
+        return when (requestType) {
+            is CityRequest.CityList -> CityResponse.CityList(httpResponse.body())
         }
     }
 
     companion object {
         const val AUTH_KEY = "X-Api-Key"
+        val TAG = CityHttpKtorClient::class.simpleName
     }
 }
