@@ -52,9 +52,12 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.ktor.core)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.koin.core)
+
+            api(libs.koin.core)
             implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
             implementation(libs.lifecycle.viewmodel)
+            implementation(libs.navigation.compose)
         }
 
         commonTest.dependencies {
@@ -69,6 +72,9 @@ kotlin {
             implementation(libs.androidx.activityCompose)
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.client.okhttp)
+
+            implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
         }
 
         jvmMain.dependencies {
