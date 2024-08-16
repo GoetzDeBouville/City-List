@@ -1,9 +1,11 @@
 package org.radiogaga.app.core.di
 
-import org.koin.core.module.dsl.viewModelOf
+import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.dsl.module
-import org.radiogaga.app.feature.search.ui.SearchScreenVM
+import org.radiogaga.app.core.data.network.createHttpClient
 
-//actual val platformModule = module {
-//    viewModelOf(::SearchScreenVM)
-//}
+actual val platformModule = module {
+    single {
+        createHttpClient(OkHttp.create())
+    }
+}

@@ -54,10 +54,9 @@ fun createHttpClient(engine: HttpClientEngine): HttpClient {
             )
         }
 
-        install(DefaultRequest) {
-            header("X-Api-Key", NetworkConstants.TOKEN)
-        }
-
+//        install(DefaultRequest) {
+//            header("X-Api-Key", NetworkConstants.TOKEN)
+//        }
 
         install(ResponseObserver) {
             onResponse { response ->

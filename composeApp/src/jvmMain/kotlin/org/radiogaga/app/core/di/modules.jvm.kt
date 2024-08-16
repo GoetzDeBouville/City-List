@@ -1,8 +1,11 @@
 package org.radiogaga.app.core.di
 
-import org.koin.core.module.Module
+import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.dsl.module
+import org.radiogaga.app.core.data.network.createHttpClient
 
-//actual val platformModule = module {
-//
-//}
+actual val platformModule = module {
+    single {
+        createHttpClient(OkHttp.create())
+    }
+}
