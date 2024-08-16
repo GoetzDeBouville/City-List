@@ -8,7 +8,7 @@ import org.radiogaga.app.core.domain.model.Result
 
 class GetCitiesUseCase(private val repository: CitiesRepository) {
 
-    fun execute(): Flow<Result<List<City>, ErrorType>> {
-        return repository.getCityList()
+    fun execute(query: String): Flow<Result<List<City>, ErrorType>> {
+        return repository.getCityList(query)
     }
 }
