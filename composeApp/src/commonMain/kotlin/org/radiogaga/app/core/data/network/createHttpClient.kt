@@ -43,6 +43,7 @@ fun createHttpClient(engine: HttpClientEngine): HttpClient {
             }
         }
 
+
         install(ContentNegotiation) {
             json(
                 json = Json {
@@ -57,11 +58,13 @@ fun createHttpClient(engine: HttpClientEngine): HttpClient {
             header("X-Api-Key", NetworkConstants.TOKEN)
         }
 
+
         install(ResponseObserver) {
             onResponse { response ->
                 println("HTTP status: ${response.status.value}")
             }
         }
+
 
         defaultRequest {
             url(NetworkConstants.BASE_URL)
