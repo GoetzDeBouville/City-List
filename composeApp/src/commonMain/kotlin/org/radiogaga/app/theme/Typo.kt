@@ -14,13 +14,13 @@ val Typography = Typography(
         color = Color.Unspecified
     ),
     titleMedium = TextStyle(
-        fontWeight = FontWeight.Light,
+        fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         letterSpacing = 0.sp,
         color = Color.Unspecified
     ),
     titleSmall = TextStyle(
-        fontWeight = FontWeight.Thin,
+        fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
         letterSpacing = 0.sp,
         color = Color.Unspecified
