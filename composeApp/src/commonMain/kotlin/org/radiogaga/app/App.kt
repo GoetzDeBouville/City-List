@@ -32,6 +32,9 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import city_list.composeapp.generated.resources.IndieFlower_Regular
 import city_list.composeapp.generated.resources.Res
 import city_list.composeapp.generated.resources.cyclone
@@ -47,17 +50,30 @@ import kotlinx.coroutines.isActive
 import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
+import org.koin.compose.KoinContext
 import org.radiogaga.app.feature.search.ui.SearchScreen
 import org.radiogaga.app.feature.search.ui.SearchScreenVM
+import org.radiogaga.app.navigation.Routes
 import org.radiogaga.app.theme.AppTheme
 import org.radiogaga.app.theme.LocalThemeIsDark
 
-@Suppress("t")
 @Composable
 internal fun App() = AppTheme {
+    KoinContext {
+        NavHost(
+            navController = rememberNavController(),
+            startDestination = Routes.SearchScreen.route
+        ) {
+            composable(route = Routes.SearchScreen.route) {
+
+                SearchScreen(navController = rememberNavController())
+            }
+        }
+    }
 }
 
 
+@Suppress("t")
 @Composable
 private fun Demo() {
 

@@ -7,20 +7,27 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -37,34 +44,51 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import city_list.composeapp.generated.resources.Res
+import city_list.composeapp.generated.resources.ic_dark_mode
+import city_list.composeapp.generated.resources.ic_light_mode
 import city_list.composeapp.generated.resources.input_string
+import city_list.composeapp.generated.resources.theme
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 import org.radiogaga.app.core.domain.model.City
 import org.radiogaga.app.core.imgresources.CrossIc
 import org.radiogaga.app.core.imgresources.SearchIc
 import org.radiogaga.app.core.ui.ErrorScreen
 import org.radiogaga.app.theme.AppTheme
+import org.radiogaga.app.theme.LocalThemeIsDark
 
 @Composable
-fun SearchScreen(viewModel: SearchScreenVM) {
+fun SearchScreen(
+    navController: NavController,
+    viewModel: SearchScreenVM = koinViewModel()
+) {
     val state by viewModel.state.collectAsState()
 
-    Content(state, accept = viewModel::accept)
+    Content(navController, state, accept = viewModel::accept)
 }
 
 @Composable
 private fun Content(
+    navController: NavController,
     state: SearchScreenState,
     accept: (SearchScreenEvent) -> Unit
 ) {
-    Scaffold(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
+    Scaffold(
+        modifier = Modifier
+            .background(color = MaterialTheme.colorScheme.background)
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.safeDrawing)
+    ) {
         var text by remember { mutableStateOf("") }
-
-        Column {
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             SearchTextField(
                 text = text,
+                accept,
                 onTextChange = { inputText ->
                     text = inputText
                     accept(SearchScreenEvent.SearchTextChanged(text))
@@ -78,24 +102,51 @@ private fun Content(
             when (state) {
                 is SearchScreenState.Error -> ErrorScreen(state.errorType)
                 is SearchScreenState.Loading -> Loading()
-                is SearchScreenState.Data -> CityList(state.cityList)
+                is SearchScreenState.Data -> CityList(navController, state.cityList)
             }
+            Spacer(
+                modifier = Modifier.weight(1f)
+            )
+            DarkThemeButton()
         }
     }
 }
 
+@Composable
+private fun DarkThemeButton() {
+    var isDark by LocalThemeIsDark.current
+    val icon = remember(isDark) {
+        if (isDark) Res.drawable.ic_light_mode
+        else Res.drawable.ic_dark_mode
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        ElevatedButton(
+            modifier = Modifier
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .align(Alignment.CenterHorizontally)
+                .widthIn(min = 100.dp),
+            onClick = { isDark = !isDark },
+            content = {
+                Icon(vectorResource(icon), contentDescription = null)
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text(stringResource(Res.string.theme))
+            }
+        )
+    }
+}
 
 @Composable
-fun SearchTextField(
+private fun SearchTextField(
     text: String = "",
+    accept: (SearchScreenEvent) -> Unit,
     onTextChange: (String) -> Unit
 ) {
     Box {
         BasicTextField(
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(horizontal = 16.dp),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             value = text,
             onValueChange = onTextChange,
             singleLine = true,
@@ -118,7 +169,9 @@ fun SearchTextField(
                     )
 
                     Box(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
 
@@ -138,7 +191,10 @@ fun SearchTextField(
                         Image(
                             imageVector = CrossIc,
                             contentDescription = "Clear Icon",
-                            modifier = Modifier.clickable { onTextChange("") }
+                            modifier = Modifier.clickable {
+                                onTextChange("")
+                                accept(SearchScreenEvent.ClearSearch)
+                            }
                         )
                     }
                 }
@@ -162,21 +218,27 @@ private fun Loading() {
 
 
 @Composable
-private fun CityList(cities: List<City>) {
+private fun CityList(
+    navController: NavController,
+    cities: List<City>
+) {
     LazyColumn {
         items(cities) { city ->
-            CityItem(city)
+            CityItem(navController, city)
         }
     }
 }
 
 
 @Composable
-private fun CityItem(city: City) {
+private fun CityItem(navController: NavController, city: City) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp, horizontal = 8.dp),
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .clickable {
+                // navController.navigate("city_details/${city.id}") !переход на следующий экран
+            },
         colors = CardColors(
             containerColor = Color.Transparent,
             contentColor = Color.Unspecified,
@@ -185,12 +247,12 @@ private fun CityItem(city: City) {
         )
     ) {
         Column(
-            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+            modifier = Modifier.padding(vertical = 8.dp)
         ) {
             Text(
                 text = city.title,
                 style = MaterialTheme.typography.titleMedium.copy(
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.primary
                 )
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -216,30 +278,30 @@ private fun CityItem(city: City) {
 private fun ShowContentPreview() {
     AppTheme {
         Content(
-            SearchScreenState.Data(
-                listOf(
-                    City(
-                        title = "Los-Angeles",
-                        subTitle = "Country: US population: 2kk",
-                        latitude = 4.5f,
-                        longitude = 6.7f
-                    ),
-                    City(
-                        title = "London",
-                        subTitle = "Country: UK population: 18kk",
-                        latitude = 4.5f,
-                        longitude = 6.7f
-                    ),
-                    City(
-                        title = "Tokio",
-                        subTitle = "Country: JP population: 22kk",
-                        latitude = 4.5f,
-                        longitude = 6.7f
-                    ),
-                )
-            ),
+            navController = rememberNavController(),
+            SearchScreenState.Loading,
             {}
         )
     }
 }
 
+private val demolist = listOf(
+    City(
+        title = "Los-Angeles",
+        subTitle = "Country: US population: 2kk",
+        latitude = 4.5f,
+        longitude = 6.7f
+    ),
+    City(
+        title = "London",
+        subTitle = "Country: UK population: 18kk",
+        latitude = 4.5f,
+        longitude = 6.7f
+    ),
+    City(
+        title = "Tokio",
+        subTitle = "Country: JP population: 22kk",
+        latitude = 4.5f,
+        longitude = 6.7f
+    ),
+)
