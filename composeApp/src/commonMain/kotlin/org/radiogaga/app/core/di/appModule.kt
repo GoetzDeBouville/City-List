@@ -11,15 +11,15 @@ import org.radiogaga.app.feature.search.domain.usecase.GetCitiesUseCase
 
 val appModule = module {
     single {
-        createHttpClient(get())
+        createHttpClient(engine = get())
     }
 
     single<HttpNetworkClient<CityRequest, CityResponse>> {
-        CityHttpKtorClient(get())
+        CityHttpKtorClient(httpClient = get())
     }
 
-    factory<CitiesRepository> { CitiesRepositoryImpl(get()) }
+    factory<CitiesRepository> { CitiesRepositoryImpl(httpNetworkClient = get()) }
 
-    factory { GetCitiesUseCase(get()) }
+    factory { GetCitiesUseCase(repository = get()) }
 
 }
