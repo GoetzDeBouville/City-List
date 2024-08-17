@@ -123,13 +123,13 @@ private fun Content(
             Spacer(
                 modifier = Modifier.weight(1f)
             )
-            DarkThemeButton()
+            DarkThemeButton(modifier = Modifier.align(Alignment.CenterHorizontally))
         }
     }
 }
 
 @Composable
-private fun DarkThemeButton() {
+private fun DarkThemeButton(modifier: Modifier = Modifier) {
     var isDark by LocalThemeIsDark.current
     val icon = remember(isDark) {
         if (isDark) Res.drawable.ic_light_mode
@@ -140,7 +140,6 @@ private fun DarkThemeButton() {
         ElevatedButton(
             modifier = Modifier
                 .padding(horizontal = 8.dp, vertical = 4.dp)
-                .align(Alignment.CenterHorizontally)
                 .widthIn(min = 100.dp),
             onClick = { isDark = isDark.not() },
             content = {
