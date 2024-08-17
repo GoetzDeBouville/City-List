@@ -25,7 +25,7 @@ val NothingFoundImg: ImageVector
                 viewportWidth = 91.723f,
                 viewportHeight = 91.723f
             ).apply {
-                path(fill = SolidColor(Color(0xFF000000))) {
+                path(fill = SolidColor(onBackground)) {
                     moveTo(31.858f, 90.53f)
                     curveToRelative(-0.251f, -0.063f, -0.491f, -0.193f, -0.854f, -0.285f)
                     curveToRelative(-0.269f, -0.068f, -0.715f, -0.156f, -1.143f, -0.284f)
