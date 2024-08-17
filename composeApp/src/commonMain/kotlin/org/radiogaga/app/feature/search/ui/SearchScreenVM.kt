@@ -11,6 +11,8 @@ class SearchScreenVM(private val getCitiesUseCase: GetCitiesUseCase) : BaseViewM
     private val _state = MutableStateFlow<SearchScreenState>(SearchScreenState.Data(emptyList()))
     val state = _state.asStateFlow()
 
+    private var queryString = ""
+
     fun accept(event: SearchScreenEvent) {
         when (event) {
             is SearchScreenEvent.SearchTextChanged -> getCityListByQuery(event.query)
@@ -23,21 +25,32 @@ class SearchScreenVM(private val getCitiesUseCase: GetCitiesUseCase) : BaseViewM
     }
 
     private fun getCityListByQuery(query: String) {
-        _state.update {
-            SearchScreenState.Loading
-        }
-        runSafelyUseCase(
-            useCaseFlow = getCitiesUseCase.execute(query),
-            onSuccess = { cities ->
-                if (cities.isEmpty()) {
-                    _state.update { SearchScreenState.Error(ErrorScreenState.NOTHING_FOUND) }
-                } else {
-                    _state.update { SearchScreenState.Data(cities) }
-                }
-            },
-            onFailure = { error ->
-                _state.update { SearchScreenState.Error(mapErrorToUiState(error)) }
+        val formatedQuery = formatString(query)
+        if (queryString == formatedQuery) {
+            println("Same string")
+        } else {
+            queryString = formatedQuery
+            _state.update {
+                SearchScreenState.Loading
             }
-        )
+            runSafelyUseCase(
+                useCaseFlow = getCitiesUseCase.execute(formatedQuery),
+                onSuccess = { cities ->
+                    if (cities.isEmpty()) {
+                        _state.update { SearchScreenState.Error(ErrorScreenState.NOTHING_FOUND) }
+                    } else {
+                        _state.update { SearchScreenState.Data(cities) }
+                    }
+                },
+                onFailure = { error ->
+                    _state.update { SearchScreenState.Error(mapErrorToUiState(error)) }
+                }
+            )
+        }
+    }
+
+    private fun formatString(str: String): String {
+        val noPunctuation = str.trim().replace(Regex("[^\\w\\s-]"), "")
+        return noPunctuation.replace(Regex("\\s+"), " ").trim()
     }
 }
