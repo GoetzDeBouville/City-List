@@ -7,7 +7,6 @@ import city_list.composeapp.generated.resources.no_internet_connection
 import city_list.composeapp.generated.resources.nothing_found
 import city_list.composeapp.generated.resources.something_went_wrong
 import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.stringResource
 import org.radiogaga.app.core.imgresources.NothingFoundImg
 import org.radiogaga.app.core.imgresources.SomethingWentWrongImg
 

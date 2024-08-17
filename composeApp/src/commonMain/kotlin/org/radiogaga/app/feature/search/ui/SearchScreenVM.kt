@@ -17,6 +17,7 @@ class SearchScreenVM(private val getCitiesUseCase: GetCitiesUseCase) : BaseViewM
         when (event) {
             is SearchScreenEvent.SearchTextChanged -> getCityListByQuery(event.query)
             is SearchScreenEvent.ClearSearch -> {
+                queryString = ""
                 _state.update {
                     SearchScreenState.Data(emptyList())
                 }

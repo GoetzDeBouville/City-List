@@ -140,7 +140,7 @@ private fun DarkThemeButton() {
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .align(Alignment.CenterHorizontally)
                 .widthIn(min = 100.dp),
-            onClick = { isDark = !isDark },
+            onClick = { isDark = isDark.not() },
             content = {
                 Icon(vectorResource(icon), contentDescription = null)
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))

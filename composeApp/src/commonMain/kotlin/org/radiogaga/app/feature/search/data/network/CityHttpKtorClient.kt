@@ -44,6 +44,5 @@ class CityHttpKtorClient(private val httpClient: HttpClient) :
 
     companion object {
         const val AUTH_KEY = "X-Api-Key"
-        val TAG = CityHttpKtorClient::class.simpleName
     }
 }
