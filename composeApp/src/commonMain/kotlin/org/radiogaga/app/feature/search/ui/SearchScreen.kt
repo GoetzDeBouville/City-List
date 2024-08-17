@@ -138,7 +138,7 @@ private fun DarkThemeButton(modifier: Modifier = Modifier) {
 
     Column(modifier = Modifier.fillMaxWidth()) {
         ElevatedButton(
-            modifier = Modifier
+            modifier = modifier
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .widthIn(min = 100.dp),
             onClick = { isDark = isDark.not() },
@@ -157,66 +157,64 @@ private fun SearchTextField(
     accept: (SearchScreenEvent) -> Unit,
     onTextChange: (String) -> Unit
 ) {
-    Box {
-        BasicTextField(
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            value = text,
-            onValueChange = onTextChange,
-            singleLine = true,
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-            textStyle = MaterialTheme.typography.titleMedium.copy(
-                color = MaterialTheme.colorScheme.primary
-            ),
-            decorationBox = { innerTextField ->
-                Row(
+    BasicTextField(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+        value = text,
+        onValueChange = onTextChange,
+        singleLine = true,
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        textStyle = MaterialTheme.typography.titleMedium.copy(
+            color = MaterialTheme.colorScheme.primary
+        ),
+        decorationBox = { innerTextField ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(36.dp)
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    modifier = Modifier.size(8.dp),
+                    imageVector = SearchIc,
+                    contentDescription = "",
+                )
+
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(36.dp)
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .weight(1f)
+                        .padding(start = 8.dp),
+                    contentAlignment = Alignment.CenterStart
                 ) {
-                    Image(
-                        modifier = Modifier.size(8.dp),
-                        imageVector = SearchIc,
-                        contentDescription = "",
-                    )
 
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 8.dp),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-
-                        if (text.isEmpty()) {
-                            Text(
-                                modifier = Modifier.padding(start = 8.dp),
-                                text = stringResource(Res.string.input_string),
-                                style = MaterialTheme.typography.titleSmall.copy(
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                ),
-                            )
-                        }
-                        innerTextField()
-                    }
-
-                    if (text.isNotEmpty()) {
-                        Image(
-                            imageVector = CrossIc,
-                            contentDescription = "Clear Icon",
-                            modifier = Modifier.clickable {
-                                onTextChange("")
-                                accept(SearchScreenEvent.ClearSearch)
-                            }
+                    if (text.isEmpty()) {
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = stringResource(Res.string.input_string),
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            ),
                         )
                     }
+                    innerTextField()
                 }
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search)
-        )
-    }
+
+                if (text.isNotEmpty()) {
+                    Image(
+                        imageVector = CrossIc,
+                        contentDescription = "Clear Icon",
+                        modifier = Modifier.clickable {
+                            onTextChange("")
+                            accept(SearchScreenEvent.ClearSearch)
+                        }
+                    )
+                }
+            }
+        },
+        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search)
+    )
 }
 
 @Composable
