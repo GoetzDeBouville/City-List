@@ -8,7 +8,7 @@ import org.radiogaga.app.core.ui.ErrorScreenState
 import org.radiogaga.app.feature.search.domain.usecase.GetCitiesUseCase
 
 class SearchScreenVM(private val getCitiesUseCase: GetCitiesUseCase) : BaseViewModel() {
-    private val _state = MutableStateFlow<SearchScreenState>(SearchScreenState.Data(emptyList()))
+    private val _state = MutableStateFlow(SearchScreenState(emptyList()))
     val state = _state.asStateFlow()
 
     private var queryString = ""
@@ -18,9 +18,7 @@ class SearchScreenVM(private val getCitiesUseCase: GetCitiesUseCase) : BaseViewM
             is SearchScreenEvent.SearchTextChanged -> getCityListByQuery(event.query)
             is SearchScreenEvent.ClearSearch -> {
                 queryString = ""
-                _state.update {
-                    SearchScreenState.Data(emptyList())
-                }
+                _state.update { SearchScreenState(cityList = emptyList()) }
             }
         }
     }
@@ -32,19 +30,27 @@ class SearchScreenVM(private val getCitiesUseCase: GetCitiesUseCase) : BaseViewM
         } else {
             queryString = formatedQuery
             _state.update {
-                SearchScreenState.Loading
+                _state.value.copy(isLoading = true)
             }
             runSafelyUseCase(
                 useCaseFlow = getCitiesUseCase.execute(formatedQuery),
                 onSuccess = { cities ->
-                    if (cities.isEmpty()) {
-                        _state.update { SearchScreenState.Error(ErrorScreenState.NOTHING_FOUND) }
-                    } else {
-                        _state.update { SearchScreenState.Data(cities) }
+                    _state.update {
+                        SearchScreenState(
+                            cityList = cities,
+                            isLoading = false,
+                            errorType = if (cities.isEmpty()) ErrorScreenState.NOTHING_FOUND else null
+                        )
                     }
                 },
                 onFailure = { error ->
-                    _state.update { SearchScreenState.Error(mapErrorToUiState(error)) }
+                    _state.update {
+                        SearchScreenState(
+                            cityList = emptyList(),
+                            isLoading = false,
+                            errorType = mapErrorToUiState(error)
+                        )
+                    }
                 }
             )
         }

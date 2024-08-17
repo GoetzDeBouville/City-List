@@ -113,10 +113,12 @@ private fun Content(
                 modifier = Modifier.height(16.dp)
             )
 
-            when (state) {
-                is SearchScreenState.Error -> ErrorScreen(state.errorType)
-                is SearchScreenState.Loading -> Loading()
-                is SearchScreenState.Data -> CityList(navController, state.cityList)
+            if (state.isLoading) {
+                Loading()
+            } else if (state.errorType != null) {
+                ErrorScreen(state.errorType)
+            } else {
+                CityList(navController, state.cityList)
             }
             Spacer(
                 modifier = Modifier.weight(1f)
@@ -294,7 +296,7 @@ private fun ShowContentPreview() {
     AppTheme {
         Content(
             navController = rememberNavController(),
-            SearchScreenState.Loading,
+            SearchScreenState(emptyList()),
             {}
         )
     }
