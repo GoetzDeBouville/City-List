@@ -128,10 +128,14 @@ internal class SearchStoreFactory(
                     useCaseFlow = getCitiesUseCase.execute(formatedQuery),
                     scope,
                     onSuccess = { cities ->
-                        dispatch(SearchStore.Msg.CitiesLoaded(cities))
+                        scope.launch(Dispatchers.Main) {
+                            dispatch(SearchStore.Msg.CitiesLoaded(cities))
+                        }
                     },
                     onFailure = { error ->
-                        dispatch(SearchStore.Msg.LoadError(error))
+                        scope.launch(Dispatchers.Main) {
+                            dispatch(SearchStore.Msg.LoadError(error))
+                        }
                     }
                 )
             }
@@ -155,7 +159,9 @@ internal class SearchStoreFactory(
                     }
                 }.onFailure { error ->
                     error.printStackTrace()
-                    onFailure?.invoke(ErrorType.UNKNOWN_ERROR)
+                    scope.launch(Dispatchers.Main) {
+                        onFailure?.invoke(ErrorType.UNKNOWN_ERROR)
+                    }
                 }
             }
         }
