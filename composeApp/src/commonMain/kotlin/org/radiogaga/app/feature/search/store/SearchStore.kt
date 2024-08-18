@@ -1,6 +1,7 @@
 package org.radiogaga.app.feature.search.store
 
 import com.arkivanov.mvikotlin.core.store.Reducer
+import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
@@ -54,6 +55,7 @@ internal class SearchStoreFactory(
         object : SearchStore, Store<Intent, SearchStore.State, Label> by storeFactory.create(
             name = "SearchStore",
             initialState = SearchStore.State(),
+            bootstrapper = SimpleBootstrapper(SearchStore.Action.ClearCities),
             reducer = ReducerImpl,
             executorFactory = { ExecutorImpl(getCitiesUseCase) }
         ) {}
@@ -91,18 +93,32 @@ internal class SearchStoreFactory(
 
         override fun executeIntent(intent: Intent) {
             when (intent) {
-                is Intent.SearchTextChanged -> getCityListByQuery(intent)
+                is Intent.SearchTextChanged -> getCityListByQuery(intent.query)
 
-                is Intent.ClearSearch -> dispatch(SearchStore.Msg.Empty)
+                is Intent.ClearSearch -> dispatch(
+                    message = SearchStore.Msg.CitiesLoaded(
+                        cities = emptyList()
+                    )
+                )
+            }
+        }
+
+        override fun executeAction(action: SearchStore.Action) {
+            when (action) {
+                is SearchStore.Action.ClearCities -> dispatch(
+                    message = SearchStore.Msg.CitiesLoaded(
+                        cities = emptyList()
+                    )
+                )
+
+                is SearchStore.Action.LoadCities -> getCityListByQuery(action.query)
             }
         }
 
         private var queryString = ""
 
-        private fun getCityListByQuery(
-            intent: Intent.SearchTextChanged
-        ) {
-            val formatedQuery = formatString(intent.query)
+        private fun getCityListByQuery(query: String) {
+            val formatedQuery = formatString(query)
             if (queryString == formatedQuery) {
                 println("Same string")
             } else {
