@@ -18,7 +18,7 @@ import org.radiogaga.app.feature.search.domain.usecase.GetCitiesUseCase
 import org.radiogaga.app.feature.search.store.SearchStore.Intent
 import org.radiogaga.app.feature.search.store.SearchStore.Label
 
-internal interface SearchStore : Store<Intent, SearchStore.State, Label> {
+interface SearchStore : Store<Intent, SearchStore.State, Label> {
 
     sealed interface Intent {
         data class SearchTextChanged(val query: String) : Intent

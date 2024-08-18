@@ -52,14 +52,17 @@ import city_list.composeapp.generated.resources.ic_dark_mode
 import city_list.composeapp.generated.resources.ic_light_mode
 import city_list.composeapp.generated.resources.input_string
 import city_list.composeapp.generated.resources.theme
+import com.arkivanov.mvikotlin.extensions.coroutines.states
 import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.getKoin
 import org.radiogaga.app.core.domain.model.City
 import org.radiogaga.app.core.imgresources.CrossIc
 import org.radiogaga.app.core.imgresources.SearchIc
 import org.radiogaga.app.core.ui.ErrorScreen
+import org.radiogaga.app.feature.search.store.SearchStore
 import org.radiogaga.app.theme.AppTheme
 import org.radiogaga.app.theme.LocalThemeIsDark
 import org.radiogaga.app.util.debounceFun
@@ -67,18 +70,26 @@ import org.radiogaga.app.util.debounceFun
 @Composable
 fun SearchScreen(
     navController: NavController,
-    viewModel: SearchScreenVM
+    store: SearchStore = getKoin().get()
 ) {
-    val state by viewModel.state.collectAsState()
-
-    Content(navController, state, accept = viewModel::accept)
+//    val state by viewModel.state.collectAsState()
+    val state by store.states.collectAsState(
+        SearchStore.State(
+            cityList = emptyList(),
+            isLoading = false,
+            errorType = null
+        )
+    )
+    Content(navController, state, accept = { intent ->
+        store.accept(intent)
+    })
 }
 
 @Composable
 private fun Content(
     navController: NavController,
-    state: SearchScreenState,
-    accept: (SearchScreenEvent) -> Unit,
+    state: SearchStore.State,
+    accept: (SearchStore.Intent) -> Unit,
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
     val debounceAccept = debounceFun<String>(
@@ -87,7 +98,7 @@ private fun Content(
         useLastParam = true
     ) { newText ->
         if (newText.isNotBlank()) {
-            accept(SearchScreenEvent.SearchTextChanged(newText))
+            accept(SearchStore.Intent.SearchTextChanged(newText))
         }
     }
 
@@ -102,7 +113,7 @@ private fun Content(
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             SearchTextField(
                 text = text,
-                accept,
+                accept = accept,
                 onTextChange = { inputText ->
                     text = inputText
                     debounceAccept(text)
@@ -154,7 +165,7 @@ private fun DarkThemeButton(modifier: Modifier = Modifier) {
 @Composable
 private fun SearchTextField(
     text: String = "",
-    accept: (SearchScreenEvent) -> Unit,
+    accept: (SearchStore.Intent) -> Unit,
     onTextChange: (String) -> Unit
 ) {
     BasicTextField(
@@ -207,7 +218,7 @@ private fun SearchTextField(
                         contentDescription = "Clear Icon",
                         modifier = Modifier.clickable {
                             onTextChange("")
-                            accept(SearchScreenEvent.ClearSearch)
+                            accept(SearchStore.Intent.ClearSearch)
                         }
                     )
                 }
@@ -293,7 +304,7 @@ private fun ShowContentPreview() {
     AppTheme {
         Content(
             navController = rememberNavController(),
-            SearchScreenState(emptyList()),
+            SearchStore.State(emptyList()),
             {}
         )
     }

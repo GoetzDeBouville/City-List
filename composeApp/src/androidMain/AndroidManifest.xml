@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:name=".MyAppp"
+        android:name=".MyApp"
         android:icon="@android:drawable/ic_menu_compass"
         android:label="City List"
         android:theme="@android:style/Theme.Material.NoActionBar">

@@ -56,7 +56,6 @@ kotlin {
             api(libs.koin.core)
             implementation(libs.koin.compose)
 
-            implementation(libs.lifecycle.viewmodel)
             implementation(libs.navigation.compose)
 
             implementation(libs.bundles.mvikotlin)
