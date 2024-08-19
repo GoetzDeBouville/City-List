@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,14 +73,10 @@ fun SearchScreen(
     navController: NavController,
     store: SearchStore = getKoin().get()
 ) {
-//    val state by viewModel.state.collectAsState()
-    val state by store.states.collectAsState(
-        SearchStore.State(
-            cityList = emptyList(),
-            isLoading = false,
-            errorType = null
-        )
-    )
+    val state by store.states.collectAsState(SearchStore.State())
+    LaunchedEffect(state) {
+        println("GFFFGAA State received: $state")
+    }
     Content(navController, state, accept = { intent ->
         store.accept(intent)
     })

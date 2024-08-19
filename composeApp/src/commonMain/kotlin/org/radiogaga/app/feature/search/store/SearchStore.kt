@@ -62,20 +62,43 @@ internal class SearchStoreFactory(
 
     private object ReducerImpl : Reducer<SearchStore.State, SearchStore.Msg> {
         override fun SearchStore.State.reduce(msg: SearchStore.Msg): SearchStore.State {
+            println("GFFFGAA ReducerImpl message: $msg")
             return when (msg) {
-                is SearchStore.Msg.Empty -> copy(
-                    cityList = emptyList(),
-                    errorType = ErrorScreenState.NOTHING_FOUND,
-                    isLoading = false
-                )
+                is SearchStore.Msg.Empty -> {
+                    val state = copy(
+                        cityList = emptyList(),
+                        errorType = ErrorScreenState.NOTHING_FOUND,
+                        isLoading = false
+                    )
+                    println("GFFFGAA ReducerImpl state: $state")
 
-                is SearchStore.Msg.Loading -> copy(isLoading = true)
-                is SearchStore.Msg.LoadError -> copy(
-                    errorType = mapErrorToUiState(msg.error),
-                    isLoading = false
-                )
+                    state
+                }
 
-                is SearchStore.Msg.CitiesLoaded -> copy(cityList = msg.cities, isLoading = false)
+                is SearchStore.Msg.Loading -> {
+                    val state = copy(isLoading = true)
+                    println("GFFFGAA ReducerImpl state: $state")
+
+                    state
+                }
+                is SearchStore.Msg.LoadError -> {
+                    val state = copy(
+                        cityList = emptyList(),
+                        errorType = mapErrorToUiState(msg.error),
+                        isLoading = false
+                    )
+
+                    println("GFFFGAA ReducerImpl state: $state")
+
+                    state
+                }
+
+                is SearchStore.Msg.CitiesLoaded -> {
+                    val state = copy(cityList = msg.cities, isLoading = false,  errorType = null)
+                    println("GFFFGAA ReducerImpl state: $state")
+
+                    state
+                }
             }
         }
 
@@ -89,7 +112,7 @@ internal class SearchStoreFactory(
     }
 
     private class ExecutorImpl(private val getCitiesUseCase: GetCitiesUseCase) :
-        CoroutineExecutor<Intent, SearchStore.Action, SearchStore.State, SearchStore.Msg, Nothing>() {
+        CoroutineExecutor<Intent, SearchStore.Action, SearchStore.State, SearchStore.Msg, Label>() {
 
         override fun executeIntent(intent: Intent) {
             when (intent) {
