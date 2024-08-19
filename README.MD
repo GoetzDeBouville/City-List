@@ -16,4 +16,4 @@
 
 
 ## Screencast
-<img src="./demo/demo.gif" width="600" height="546"> 
+<img src="./demo/demo.gif" width="600" height="350"> 
