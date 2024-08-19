@@ -5,7 +5,6 @@ import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -16,9 +15,8 @@ import org.radiogaga.app.core.domain.model.Result
 import org.radiogaga.app.core.ui.ErrorScreenState
 import org.radiogaga.app.feature.search.domain.usecase.GetCitiesUseCase
 import org.radiogaga.app.feature.search.store.SearchStore.Intent
-import org.radiogaga.app.feature.search.store.SearchStore.Label
 
-interface SearchStore : Store<Intent, SearchStore.State, Label> {
+interface SearchStore : Store<Intent, SearchStore.State, Nothing> {
 
     sealed interface Intent {
         data class SearchTextChanged(val query: String) : Intent
@@ -42,8 +40,6 @@ interface SearchStore : Store<Intent, SearchStore.State, Label> {
         data class LoadError(val error: ErrorType) : Msg
         data object Empty : Msg
     }
-
-    sealed interface Label
 }
 
 internal class SearchStoreFactory(
@@ -52,7 +48,7 @@ internal class SearchStoreFactory(
 ) {
 
     fun create(): SearchStore =
-        object : SearchStore, Store<Intent, SearchStore.State, Label> by storeFactory.create(
+        object : SearchStore, Store<Intent, SearchStore.State, Nothing> by storeFactory.create(
             name = "SearchStore",
             initialState = SearchStore.State(),
             bootstrapper = SimpleBootstrapper(SearchStore.Action.ClearCities),
@@ -81,6 +77,7 @@ internal class SearchStoreFactory(
 
                     state
                 }
+
                 is SearchStore.Msg.LoadError -> {
                     val state = copy(
                         cityList = emptyList(),
@@ -94,7 +91,7 @@ internal class SearchStoreFactory(
                 }
 
                 is SearchStore.Msg.CitiesLoaded -> {
-                    val state = copy(cityList = msg.cities, isLoading = false,  errorType = null)
+                    val state = copy(cityList = msg.cities, isLoading = false, errorType = null)
                     println("GFFFGAA ReducerImpl state: $state")
 
                     state
@@ -112,7 +109,7 @@ internal class SearchStoreFactory(
     }
 
     private class ExecutorImpl(private val getCitiesUseCase: GetCitiesUseCase) :
-        CoroutineExecutor<Intent, SearchStore.Action, SearchStore.State, SearchStore.Msg, Label>() {
+        CoroutineExecutor<Intent, SearchStore.Action, SearchStore.State, SearchStore.Msg, Nothing>() {
 
         override fun executeIntent(intent: Intent) {
             when (intent) {
@@ -149,7 +146,6 @@ internal class SearchStoreFactory(
                 dispatch(SearchStore.Msg.Loading(true))
                 runSafelyUseCase(
                     useCaseFlow = getCitiesUseCase.execute(formatedQuery),
-                    scope,
                     onSuccess = { cities ->
                         scope.launch(Dispatchers.Main) {
                             dispatch(SearchStore.Msg.CitiesLoaded(cities))
@@ -166,11 +162,10 @@ internal class SearchStoreFactory(
 
         private inline fun <reified D> runSafelyUseCase(
             useCaseFlow: Flow<Result<D, ErrorType>>,
-            coroutineScope: CoroutineScope,
             noinline onFailure: ((ErrorType) -> Unit)? = null,
             crossinline onSuccess: (D) -> Unit,
         ) {
-            coroutineScope.launch(Dispatchers.IO) {
+            scope.launch(Dispatchers.IO) {
                 runCatching {
                     useCaseFlow.collect { result ->
                         when (result) {

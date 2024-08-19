@@ -53,7 +53,7 @@ import city_list.composeapp.generated.resources.ic_dark_mode
 import city_list.composeapp.generated.resources.ic_light_mode
 import city_list.composeapp.generated.resources.input_string
 import city_list.composeapp.generated.resources.theme
-import com.arkivanov.mvikotlin.extensions.coroutines.states
+import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
 import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
@@ -73,7 +73,9 @@ fun SearchScreen(
     navController: NavController,
     store: SearchStore = getKoin().get()
 ) {
-    val state by store.states.collectAsState(SearchStore.State())
+    val stateFlow = store.stateFlow(rememberCoroutineScope())
+    val state by stateFlow.collectAsState()
+
     LaunchedEffect(state) {
         println("GFFFGAA State received: $state")
     }
