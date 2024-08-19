@@ -7,7 +7,7 @@
 - UI - Jetpack Compose
 - network - ktor
 - coroutines flow
-- MVI + StateFlow
+- MVIKotlin
 - DI - koin
 
 Список городов отображается в виде скроллируемого списка
@@ -16,4 +16,4 @@
 
 
 ## Screencast
-<img src="./demo/demo.gif" width="600" height="546"> 
+<img src="./demo/demo.gif" width="600" height="350"> 
