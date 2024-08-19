@@ -1,7 +1,6 @@
-package org.radiogaga.app.feature.search.store
+package org.radiogaga.app.feature.search.presentation
 
 import com.arkivanov.mvikotlin.core.store.Reducer
-import com.arkivanov.mvikotlin.core.store.SimpleBootstrapper
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
@@ -14,33 +13,7 @@ import org.radiogaga.app.core.domain.model.ErrorType
 import org.radiogaga.app.core.domain.model.Result
 import org.radiogaga.app.core.ui.ErrorScreenState
 import org.radiogaga.app.feature.search.domain.usecase.GetCitiesUseCase
-import org.radiogaga.app.feature.search.store.SearchStore.Intent
-
-interface SearchStore : Store<Intent, SearchStore.State, Nothing> {
-
-    sealed interface Intent {
-        data class SearchTextChanged(val query: String) : Intent
-        data object ClearSearch : Intent
-    }
-
-    sealed interface Action {
-        class LoadCities(val query: String) : Action
-        data object ClearCities : Action
-    }
-
-    data class State(
-        val cityList: List<City> = emptyList(),
-        val isLoading: Boolean = false,
-        val errorType: ErrorScreenState? = null
-    )
-
-    sealed interface Msg {
-        data class Loading(val isLoading: Boolean) : Msg
-        data class CitiesLoaded(val cities: List<City>) : Msg
-        data class LoadError(val error: ErrorType) : Msg
-        data object Empty : Msg
-    }
-}
+import org.radiogaga.app.feature.search.presentation.SearchStore.Intent
 
 internal class SearchStoreFactory(
     private val storeFactory: StoreFactory,
@@ -51,51 +24,39 @@ internal class SearchStoreFactory(
         object : SearchStore, Store<Intent, SearchStore.State, Nothing> by storeFactory.create(
             name = "SearchStore",
             initialState = SearchStore.State(),
-            bootstrapper = SimpleBootstrapper(SearchStore.Action.ClearCities),
             reducer = ReducerImpl,
             executorFactory = { ExecutorImpl(getCitiesUseCase) }
         ) {}
 
-    private object ReducerImpl : Reducer<SearchStore.State, SearchStore.Msg> {
-        override fun SearchStore.State.reduce(msg: SearchStore.Msg): SearchStore.State {
-            println("GFFFGAA ReducerImpl message: $msg")
+    private sealed interface Msg {
+        data class Loading(val isLoading: Boolean) : Msg
+        data class CitiesLoaded(val cities: List<City>) : Msg
+        data class LoadError(val error: ErrorType) : Msg
+        data object Empty : Msg
+    }
+
+    private object ReducerImpl : Reducer<SearchStore.State, Msg> {
+        override fun SearchStore.State.reduce(msg: Msg): SearchStore.State {
             return when (msg) {
-                is SearchStore.Msg.Empty -> {
-                    val state = copy(
-                        cityList = emptyList(),
-                        errorType = ErrorScreenState.NOTHING_FOUND,
-                        isLoading = false
-                    )
-                    println("GFFFGAA ReducerImpl state: $state")
+                is Msg.Empty -> copy(
+                    cityList = emptyList(),
+                    errorType = ErrorScreenState.NOTHING_FOUND,
+                    isLoading = false
+                )
 
-                    state
-                }
+                is Msg.Loading -> copy(isLoading = true)
 
-                is SearchStore.Msg.Loading -> {
-                    val state = copy(isLoading = true)
-                    println("GFFFGAA ReducerImpl state: $state")
+                is Msg.LoadError -> copy(
+                    cityList = emptyList(),
+                    errorType = mapErrorToUiState(msg.error),
+                    isLoading = false
+                )
 
-                    state
-                }
-
-                is SearchStore.Msg.LoadError -> {
-                    val state = copy(
-                        cityList = emptyList(),
-                        errorType = mapErrorToUiState(msg.error),
-                        isLoading = false
-                    )
-
-                    println("GFFFGAA ReducerImpl state: $state")
-
-                    state
-                }
-
-                is SearchStore.Msg.CitiesLoaded -> {
-                    val state = copy(cityList = msg.cities, isLoading = false, errorType = null)
-                    println("GFFFGAA ReducerImpl state: $state")
-
-                    state
-                }
+                is Msg.CitiesLoaded -> copy(
+                    cityList = msg.cities,
+                    isLoading = false,
+                    errorType = null
+                )
             }
         }
 
@@ -109,29 +70,17 @@ internal class SearchStoreFactory(
     }
 
     private class ExecutorImpl(private val getCitiesUseCase: GetCitiesUseCase) :
-        CoroutineExecutor<Intent, SearchStore.Action, SearchStore.State, SearchStore.Msg, Nothing>() {
+        CoroutineExecutor<Intent, Nothing, SearchStore.State, Msg, Nothing>() {
 
         override fun executeIntent(intent: Intent) {
             when (intent) {
                 is Intent.SearchTextChanged -> getCityListByQuery(intent.query)
 
                 is Intent.ClearSearch -> dispatch(
-                    message = SearchStore.Msg.CitiesLoaded(
+                    message = Msg.CitiesLoaded(
                         cities = emptyList()
                     )
                 )
-            }
-        }
-
-        override fun executeAction(action: SearchStore.Action) {
-            when (action) {
-                is SearchStore.Action.ClearCities -> dispatch(
-                    message = SearchStore.Msg.CitiesLoaded(
-                        cities = emptyList()
-                    )
-                )
-
-                is SearchStore.Action.LoadCities -> getCityListByQuery(action.query)
             }
         }
 
@@ -143,17 +92,21 @@ internal class SearchStoreFactory(
                 println("Same string")
             } else {
                 queryString = formatedQuery
-                dispatch(SearchStore.Msg.Loading(true))
+                dispatch(Msg.Loading(true))
                 runSafelyUseCase(
-                    useCaseFlow = getCitiesUseCase.execute(formatedQuery),
+                    useCaseFlow = getCitiesUseCase(formatedQuery),
                     onSuccess = { cities ->
                         scope.launch(Dispatchers.Main) {
-                            dispatch(SearchStore.Msg.CitiesLoaded(cities))
+                            if (cities.isEmpty()) {
+                                dispatch(Msg.Empty)
+                            } else {
+                                dispatch(Msg.CitiesLoaded(cities))
+                            }
                         }
                     },
                     onFailure = { error ->
                         scope.launch(Dispatchers.Main) {
-                            dispatch(SearchStore.Msg.LoadError(error))
+                            dispatch(Msg.LoadError(error))
                         }
                     }
                 )

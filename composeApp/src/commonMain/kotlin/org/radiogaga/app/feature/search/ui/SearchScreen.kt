@@ -32,7 +32,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,7 +52,7 @@ import city_list.composeapp.generated.resources.ic_dark_mode
 import city_list.composeapp.generated.resources.ic_light_mode
 import city_list.composeapp.generated.resources.input_string
 import city_list.composeapp.generated.resources.theme
-import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
+import com.arkivanov.mvikotlin.extensions.coroutines.states
 import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
@@ -63,7 +62,7 @@ import org.radiogaga.app.core.domain.model.City
 import org.radiogaga.app.core.imgresources.CrossIc
 import org.radiogaga.app.core.imgresources.SearchIc
 import org.radiogaga.app.core.ui.ErrorScreen
-import org.radiogaga.app.feature.search.store.SearchStore
+import org.radiogaga.app.feature.search.presentation.SearchStore
 import org.radiogaga.app.theme.AppTheme
 import org.radiogaga.app.theme.LocalThemeIsDark
 import org.radiogaga.app.util.debounceFun
@@ -73,13 +72,11 @@ fun SearchScreen(
     navController: NavController,
     store: SearchStore = getKoin().get()
 ) {
-    val stateFlow = store.stateFlow(rememberCoroutineScope())
-    val state by stateFlow.collectAsState()
+    val state = store.states.collectAsState(
+        initial = SearchStore.State()
+    )
 
-    LaunchedEffect(state) {
-        println("GFFFGAA State received: $state")
-    }
-    Content(navController, state, accept = { intent ->
+    Content(navController, state.value, accept = { intent ->
         store.accept(intent)
     })
 }
