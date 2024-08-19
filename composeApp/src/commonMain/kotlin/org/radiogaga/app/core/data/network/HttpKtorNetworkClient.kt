@@ -14,7 +14,7 @@ abstract class HttpKtorNetworkClient<SealedRequest, SealedResponse>(
         return runCatching {
             mapToResponse(
                 requestType = sealedRequest,
-                httpResponse = sendResponseByType(sealedRequest)
+                httpResponse = sendRequestByType(sealedRequest)
             )
         }.onFailure { error ->
             println("$TAG error -> $error")
@@ -22,7 +22,7 @@ abstract class HttpKtorNetworkClient<SealedRequest, SealedResponse>(
         }.getOrNull() ?: Response()
     }
 
-    protected abstract suspend fun sendResponseByType(request: SealedRequest): HttpResponse
+    protected abstract suspend fun sendRequestByType(request: SealedRequest): HttpResponse
 
     protected abstract suspend fun getResponseBodyByRequestType(
         requestType: SealedRequest,

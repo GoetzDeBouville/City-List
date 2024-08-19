@@ -14,7 +14,7 @@ import org.radiogaga.app.core.data.network.NetworkConstants
 
 class CityHttpKtorClient(private val httpClient: HttpClient) :
     HttpKtorNetworkClient<CityRequest, CityResponse>() {
-    override suspend fun sendResponseByType(request: CityRequest): HttpResponse {
+    override suspend fun sendRequestByType(request: CityRequest): HttpResponse {
         return when (request) {
             is CityRequest.CityList -> {
                 httpClient.get {
