@@ -10,7 +10,7 @@ actual class KoinInit(private val context: Context) {
         startKoin {
             androidContext(context)
             androidLogger()
-            modules(appModule, viewModelModule, ktorModule)
+            modules(appModule, ktorModule)
         }
     }
 }
