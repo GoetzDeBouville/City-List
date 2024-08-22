@@ -9,28 +9,47 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.path
+import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import org.radiogaga.app.core.data.network.HttpKtorNetworkClient
 import org.radiogaga.app.core.data.network.NetworkConstants
 
 class CityHttpKtorClient(private val httpClient: HttpClient) :
     HttpKtorNetworkClient<CityRequest, CityResponse>() {
     override suspend fun sendRequestByType(request: CityRequest): HttpResponse {
-        return when (request) {
-            is CityRequest.CityList -> {
-                httpClient.get {
-                    url {
-                        path(request.path)
-                        parameter("name", request.query)
-                        parameter("limit", request.limit.toString())
-                        contentType(ContentType.Application.Json)
-                    }
+        val durationList = mutableListOf<Long>()
+        val clock = Clock.System
 
-                    headers {
-                        append(AUTH_KEY, NetworkConstants.TOKEN)
+        var response : HttpResponse? = null
+        var startTime: Instant
+        var endTime: Instant
+
+        repeat(100) {
+            startTime = clock.now()
+            response = when (request) {
+                is CityRequest.CityList -> {
+                    httpClient.get {
+                        url {
+                            path(request.path)
+                            parameter("name", request.query)
+                            parameter("limit", request.limit.toString())
+                            contentType(ContentType.Application.Json)
+                        }
+
+                        headers {
+                            append(AUTH_KEY, NetworkConstants.TOKEN)
+                        }
                     }
                 }
             }
+            endTime = clock.now()
+            durationList.add((endTime - startTime).inWholeMilliseconds)
         }
+
+        println("All request durations: ${durationList.joinToString(separator = ", ")}")
+        println("Average request duration: ${durationList.average()} ms")
+        return response!!
     }
 
     override suspend fun getResponseBodyByRequestType(

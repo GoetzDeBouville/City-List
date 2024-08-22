@@ -59,6 +59,8 @@ kotlin {
             implementation(libs.navigation.compose)
 
             implementation(libs.bundles.mvikotlin)
+
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
         }
 
         commonTest.dependencies {
