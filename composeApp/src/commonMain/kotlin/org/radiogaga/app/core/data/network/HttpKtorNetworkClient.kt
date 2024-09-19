@@ -17,7 +17,6 @@ abstract class HttpKtorNetworkClient<SealedRequest, SealedResponse>(
                 httpResponse = sendResponseByType(sealedRequest)
             )
         }.onFailure { error ->
-            println("$TAG error -> $error")
             error.printStackTrace()
         }.getOrNull() ?: Response()
     }
@@ -33,8 +32,6 @@ abstract class HttpKtorNetworkClient<SealedRequest, SealedResponse>(
         requestType: SealedRequest,
         httpResponse: HttpResponse
     ): Response<SealedResponse> {
-        println("$TAG HTTP response status: ${httpResponse.status.value}")
-        println("$TAG body = ${httpResponse.bodyAsText()}")
         return if (httpResponse.status.isSuccess()) {
             try {
                 Response(
@@ -43,13 +40,11 @@ abstract class HttpKtorNetworkClient<SealedRequest, SealedResponse>(
                     body = getResponseBodyByRequestType(requestType, httpResponse)
                 )
             } catch (e: SerializationException) {
-                println("$TAG $e")
                 Response(
                     isSuccess = false,
                     resultCode = StatusCode(httpResponse.status.value)
                 )
             } catch (e: IOException) {
-                println("$TAG $e")
                 Response(
                     isSuccess = false,
                     resultCode = StatusCode(httpResponse.status.value)
@@ -61,9 +56,5 @@ abstract class HttpKtorNetworkClient<SealedRequest, SealedResponse>(
                 resultCode = StatusCode(httpResponse.status.value)
             )
         }
-    }
-
-    private companion object {
-        val TAG = HttpKtorNetworkClient::class.simpleName ?: "HttpKtorNetworkClient"
     }
 }

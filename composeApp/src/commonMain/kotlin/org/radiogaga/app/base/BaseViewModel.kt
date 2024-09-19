@@ -28,7 +28,6 @@ abstract class BaseViewModel : ViewModel() {
                     }
                 }
             }.onFailure { error ->
-                println("$TAG error -> $error")
                 error.printStackTrace()
                 onFailure?.invoke(ErrorType.UNKNOWN_ERROR)
             }
@@ -41,9 +40,5 @@ abstract class BaseViewModel : ViewModel() {
             ErrorType.NOTHING_FOUND -> ErrorScreenState.NOTHING_FOUND
             else -> ErrorScreenState.SERVER_ERROR
         }
-    }
-
-    companion object {
-        val TAG = BaseViewModel::class.simpleName
     }
 }
