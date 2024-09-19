@@ -1,18 +1,11 @@
-## Тестовое задание
+## MVI example
 
-### Приложение для получения городов по строковому запросу и вывода списка городов на экран с возможностью скролла
-
-### Стек:
-- KMP (Compose Multiplatform iOS, Android)
+### Stack:
+- KMP (Compose Multiplatform iOS, Android, Desktop)
 - UI - Jetpack Compose
 - network - ktor
 - coroutines flow
-- MVI + StateFlow
 - DI - koin
-
-Список городов отображается в виде скроллируемого списка
-Поле поиска для запроса списка городов по названию
-Поиск запускается с дебаунсом в 2 секунды 
 
 
 ## Screencast
