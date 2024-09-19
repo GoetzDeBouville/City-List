@@ -41,8 +41,6 @@ navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-co
 
 mvikotlin = { module = "com.arkivanov.mvikotlin:mvikotlin", version.ref = "mvi" }
 mvikotlin-main = { module = "com.arkivanov.mvikotlin:mvikotlin-main", version.ref = "mvi" }
-mvikotlin-logging = { module = "com.arkivanov.mvikotlin:mvikotlin-logging", version.ref = "mvi" }
-mvikotlin-timetravel = { module = "com.arkivanov.mvikotlin:mvikotlin-timetravel", version.ref = "mvi" }
 mvikotlin-extensions-coroutines = { module = "com.arkivanov.mvikotlin:mvikotlin-extensions-coroutines", version.ref = "mvi" }
 
 [bundles]
@@ -56,8 +54,6 @@ ktor = [
 mvikotlin = [
     "mvikotlin",
     "mvikotlin-main",
-    "mvikotlin-logging",
-    "mvikotlin-timetravel",
     "mvikotlin-extensions-coroutines"
 ]
 
