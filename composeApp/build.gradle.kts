@@ -58,6 +58,7 @@ kotlin {
 
             implementation(libs.navigation.compose)
 
+            implementation(libs.essenty.lifecycle.coroutines)
             implementation(libs.bundles.mvikotlin)
         }
 
