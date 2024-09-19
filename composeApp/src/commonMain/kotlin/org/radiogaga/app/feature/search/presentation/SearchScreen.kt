@@ -1,4 +1,4 @@
-package org.radiogaga.app.feature.search.ui
+package org.radiogaga.app.feature.search.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -62,7 +62,6 @@ import org.radiogaga.app.core.domain.model.City
 import org.radiogaga.app.core.imgresources.CrossIc
 import org.radiogaga.app.core.imgresources.SearchIc
 import org.radiogaga.app.core.ui.ErrorScreen
-import org.radiogaga.app.feature.search.presentation.SearchStore
 import org.radiogaga.app.theme.AppTheme
 import org.radiogaga.app.theme.LocalThemeIsDark
 import org.radiogaga.app.util.debounceFun
