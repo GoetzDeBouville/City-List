@@ -3,17 +3,16 @@ package org.radiogaga.app.feature.search.presentation
 import com.arkivanov.mvikotlin.core.store.Reducer
 import com.arkivanov.mvikotlin.core.store.Store
 import com.arkivanov.mvikotlin.core.store.StoreFactory
+import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineBootstrapper
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import org.radiogaga.app.core.domain.model.City
 import org.radiogaga.app.core.domain.model.ErrorType
-import org.radiogaga.app.core.domain.model.Result
 import org.radiogaga.app.core.ui.ErrorScreenState
 import org.radiogaga.app.feature.search.domain.usecase.GetCitiesUseCase
 import org.radiogaga.app.feature.search.presentation.SearchStore.Intent
+import org.radiogaga.app.util.runSafelyUseCase
 
 internal class SearchStoreFactory(
     private val storeFactory: StoreFactory,
@@ -24,6 +23,7 @@ internal class SearchStoreFactory(
         object : SearchStore, Store<Intent, SearchStore.State, Nothing> by storeFactory.create(
             name = "SearchStore",
             initialState = SearchStore.State(),
+            bootstrapper = BootstrapperImpl(getCitiesUseCase),
             reducer = ReducerImpl,
             executorFactory = { ExecutorImpl(getCitiesUseCase) }
         ) {}
@@ -33,6 +33,13 @@ internal class SearchStoreFactory(
         data class CitiesLoaded(val cities: List<City>) : Msg
         data class LoadError(val error: ErrorType) : Msg
         data object Empty : Msg
+    }
+
+    private sealed interface Action {
+        data class Loading(val isLoading: Boolean) : Action
+        data class CitiesLoaded(val cities: List<City>) : Action
+        data class LoadError(val error: ErrorType) : Action
+        data object Empty : Action
     }
 
     private object ReducerImpl : Reducer<SearchStore.State, Msg> {
@@ -70,7 +77,7 @@ internal class SearchStoreFactory(
     }
 
     private class ExecutorImpl(private val getCitiesUseCase: GetCitiesUseCase) :
-        CoroutineExecutor<Intent, Nothing, SearchStore.State, Msg, Nothing>() {
+        CoroutineExecutor<Intent, Action, SearchStore.State, Msg, Nothing>() {
 
         override fun executeIntent(intent: Intent) {
             when (intent) {
@@ -81,6 +88,15 @@ internal class SearchStoreFactory(
                         cities = emptyList()
                     )
                 )
+            }
+        }
+
+        override fun executeAction(action: Action) {
+            when(action) {
+                is Action.Loading -> dispatch(Msg.Loading(action.isLoading))
+                is Action.CitiesLoaded -> dispatch(Msg.CitiesLoaded(action.cities))
+                is Action.LoadError -> dispatch(Msg.LoadError(action.error))
+                is Action.Empty -> dispatch(Msg.Empty)
             }
         }
 
@@ -95,6 +111,7 @@ internal class SearchStoreFactory(
                 dispatch(Msg.Loading(true))
                 runSafelyUseCase(
                     useCaseFlow = getCitiesUseCase(formatedQuery),
+                    scope = scope,
                     onSuccess = { cities ->
                         scope.launch(Dispatchers.Main) {
                             if (cities.isEmpty()) {
@@ -113,33 +130,33 @@ internal class SearchStoreFactory(
             }
         }
 
-        private inline fun <reified D> runSafelyUseCase(
-            useCaseFlow: Flow<Result<D, ErrorType>>,
-            noinline onFailure: ((ErrorType) -> Unit)? = null,
-            crossinline onSuccess: (D) -> Unit,
-        ) {
-            scope.launch(Dispatchers.IO) {
-                runCatching {
-                    useCaseFlow.collect { result ->
-                        when (result) {
-                            is Result.Success -> onSuccess(result.data)
-                            is Result.Error -> {
-                                onFailure?.invoke(result.error)
-                            }
-                        }
-                    }
-                }.onFailure { error ->
-                    error.printStackTrace()
-                    scope.launch(Dispatchers.Main) {
-                        onFailure?.invoke(ErrorType.UNKNOWN_ERROR)
-                    }
-                }
-            }
-        }
-
         private fun formatString(str: String): String {
             val noPunctuation = str.trim().replace(Regex("[^\\w\\s-]"), "")
             return noPunctuation.replace(Regex("\\s+"), " ").trim()
+        }
+    }
+
+    private class BootstrapperImpl(private val getCitiesUseCase: GetCitiesUseCase) :
+        CoroutineBootstrapper<Action>() {
+        override fun invoke() {
+            runSafelyUseCase(
+                useCaseFlow = getCitiesUseCase("New"),
+                scope = scope,
+                onSuccess = { cities ->
+                    scope.launch(Dispatchers.Main) {
+                        if (cities.isEmpty()) {
+                            dispatch(Action.Empty)
+                        } else {
+                            dispatch(Action.CitiesLoaded(cities))
+                        }
+                    }
+                },
+                onFailure = { error ->
+                    scope.launch(Dispatchers.Main) {
+                        dispatch(Action.LoadError(error))
+                    }
+                }
+            )
         }
     }
 }
