@@ -6,12 +6,12 @@
     <string name="theme">Theme</string>
 
 
-    <string name="population"> население: </string>
-    <string name="country">Страна: </string>
+    <string name="population"> population: </string>
+    <string name="country">Country: </string>
 
-    <string name="something_went_wrong">Что-то пошло не так...\nданные не загрузились</string>
-    <string name="nothing_found">По вашему запросу\nничего не найдено</string>
-    <string name="no_internet_connection">Проверьте подключение к интернету</string>
-    <string name="input_string">Поиск города</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="nothing_found">Nothing found</string>
+    <string name="no_internet_connection">Check internet connection</string>
+    <string name="input_string">Find city</string>
 
 </resources>

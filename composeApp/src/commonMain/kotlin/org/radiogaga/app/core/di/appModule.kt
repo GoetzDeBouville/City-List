@@ -1,7 +1,6 @@
 package org.radiogaga.app.core.di
 
-import com.arkivanov.mvikotlin.logging.store.LoggingStoreFactory
-import com.arkivanov.mvikotlin.timetravel.store.TimeTravelStoreFactory
+import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import org.koin.dsl.module
 import org.radiogaga.app.core.data.network.HttpNetworkClient
 import org.radiogaga.app.feature.search.data.CitiesRepositoryImpl
@@ -27,7 +26,7 @@ val appModule = module {
 
     single {
         SearchStoreFactory(
-            storeFactory = LoggingStoreFactory(TimeTravelStoreFactory()),
+            storeFactory = DefaultStoreFactory(),
             getCitiesUseCase = get()
         ).create()
     }
